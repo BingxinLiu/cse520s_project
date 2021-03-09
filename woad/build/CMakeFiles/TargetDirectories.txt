@@ -1,0 +1,3 @@
+/Users/liubingxin/Documents/cse520s_project/woad/build/CMakeFiles/rebuild_cache.dir
+/Users/liubingxin/Documents/cse520s_project/woad/build/CMakeFiles/edit_cache.dir
+/Users/liubingxin/Documents/cse520s_project/woad/build/CMakeFiles/photo.dir
