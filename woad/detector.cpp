@@ -16,8 +16,10 @@ const int imageHeight = 480;
 
 Size imageSize = Size(imageWidth, imageHeight);
 
+int i = 0;
+
 Mat rgbImageL, grayImageL;
-Mat rgbUmageR, grayImageR;
+Mat rgbImageR, grayImageR;
 Mat rectifyImageL, rectifyImageR;
 
 Rect validROIL, validROIR;
@@ -29,22 +31,22 @@ Mat xyz;
 // check
 int blockSize = 7, uniquenessRatio = 20, numDisparities = 6;
 Ptr<StereoBM> bm = StereoBM::create(16, 9);
-
-Mat cameraMatrixL = (Mat_<double>(3, 3) << 572.74899, 0, 341.11564,\
-                                            0, 763.28184, 267.75341,\
+Mat cameraMatrixL = (Mat_<double>(3, 3) << 5.727240639079388e+02, 0, 3.348927572177254e+02,\
+                                            0, 7.642579107425479e+02, 2.524851683818865e+02,\
                                             0, 0, 1);
-Mat cameraMatrixR = (Mat_<double>(3, 3) << 565.75134, 0, 324.57437,\
-                                            0, 754.92681, 256.71093,\
+Mat cameraMatrixR = (Mat_<double>(3, 3) << 5.739904007489756e+02, 0, 3.480807759167425e+02,\
+                                            0, 7.661585268839706e+02, 2.594853798430605e+02,\
                                             0, 0, 1);
-Mat distCoeffL = (Mat_<double>(5, 1) << -0.16967, 0.45644,\
-                         0.00300, 0.00046, \
+Mat distCoeffL = (Mat_<double>(5, 1) << -0.173879002658564, 0.499995463028069,\
+                         -0.002931519453850, 0.007181465286153, \
                          0.00000);
-Mat distCoeffR = (Mat_<double>(5, 1) << -0.17735, 0.41591,\
-                         -0.00156, -0.00038,\
+Mat distCoeffR = (Mat_<double>(5, 1) << -0.179788172339507, 0.646411891137831,\
+                         -3.077025769343296e-04, 0.005189588649867,\
                          0.00000);
-Mat T = (Mat_<double>(3, 1) << -599.79459, 2.60377, -19.39452);
-Mat rec = (Mat_<double>(3, 1) << -0.00119, -0.00003, -0.00036);
-Mat R;
+Mat T = (Mat_<double>(3, 1) << 60.489055441567714, -0.376046366004474, -1.123445669345643);
+Mat R = (Mat_<double>(3, 3) << 1, -1.355832825473907e-04, 0.007163468273113,\
+                              1.148828189388144e-04, 1, 0.002890058895127,\
+                              -0.007163830153230, -0.002889161756095, 1);
 
 
 void stereo_match(int, void*);
@@ -64,7 +66,6 @@ int main()
        return -1;
     }
 
-    Rodrigues(rec, R);
     stereoRectify(cameraMatrixL, distCoeffL, cameraMatrixR, distCoeffR, imageSize,\
                      R, T, Rl, Rr, Pl, Pr, Q, CALIB_ZERO_DISPARITY, 0, imageSize, \
                      &validROIL, &validROIR);
@@ -74,15 +75,14 @@ int main()
                             mapRx, mapRy);
     while(1)
     {
-	    Mat rgbImageL, rgbUmageR;
         cam0 >> rgbImageL;
-        cam1 >> rgbUmageR;
+        cam1 >> rgbImageR;
         //-- 1. Read the images
         cvtColor(rgbImageL, grayImageL, COLOR_RGB2GRAY);
-        cvtColor(rgbUmageR, grayImageR, COLOR_RGB2GRAY);
+        cvtColor(rgbImageR, grayImageR, COLOR_RGB2GRAY);
 
         imshow("ImageL Before Rectify", grayImageL);
-        imshow("ImageR Before Rectify", grayImageR);
+        //imshow("ImageR Before Rectify", grayImageR);
 
         // remap
         remap(grayImageL, rectifyImageL, mapLx, mapLy, INTER_LINEAR);
@@ -93,7 +93,7 @@ int main()
         cvtColor(rectifyImageL, rgbRectifyImageL, COLOR_GRAY2BGR);
         cvtColor(rectifyImageR, rgbRectifyImageR, COLOR_GRAY2BGR);
         imshow("ImageL After Rectify", rgbRectifyImageL);
-        imshow("ImageR After Rectify", rgbRectifyImageR);
+        //imshow("ImageR After Rectify", rgbRectifyImageR);
 
         // stereo match
         namedWindow("disparity", cv::WINDOW_AUTOSIZE);
@@ -131,6 +131,19 @@ int main()
 
 	    if((char)waitKey(30) == 27)
 		    break;
+
+	    if((char)waitKey(30) == 32)
+	    {
+	      char lpic_Name[128] = {};
+	      char rpic_Name[128] = {};
+	        sprintf(lpic_Name, "RL%d.jpg", i);
+                sprintf(rpic_Name, "RR%d.jpg", i);
+                imwrite(lpic_Name, rectifyImageL);
+                imwrite(rpic_Name, rectifyImageL);
+		std::cout<<"--- take a picture ---" <<std::endl;
+		i++;
+		  }
+
     }
 
     return 0;
@@ -139,7 +152,7 @@ int main()
 
 void stereo_match(int, void*)
 {
-    bm->setBlockSize(2 * blockSize + 5); //SAD window?
+    bm->setBlockSize(21); //2 * blockSize + 5 SAD window?
     bm->setROI1(validROIL);
     bm->setROI2(validROIR);
     bm->setPreFilterCap(31);
@@ -147,6 +160,7 @@ void stereo_match(int, void*)
     bm->setNumDisparities(numDisparities * 16 + 16);
     bm->setTextureThreshold(10);
     bm->setUniquenessRatio(uniquenessRatio);
+
     bm->setSpeckleWindowSize(100);
     bm->setSpeckleRange(32);
     bm->setDisp12MaxDiff(-1);

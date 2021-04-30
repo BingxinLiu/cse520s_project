@@ -31,12 +31,12 @@ int main()
     while(1)
     {
 	    Mat frame0, frame1;
-        cam0 >> frame0;
-        cam1 >> frame1;
+        cam1 >> frame0;
+        cam0 >> frame1;
         //-- 1. Read the images
         Mat imgLeft,imgRight;
-        cvtColor(frame0, imgRight, COLOR_RGB2GRAY);
-        cvtColor(frame1, imgLeft, COLOR_RGB2GRAY);
+        cvtColor(frame0, imgLeft, COLOR_RGB2GRAY);
+        cvtColor(frame1, imgRight, COLOR_RGB2GRAY);
         //-- And create the image in which we will save our disparities
         Mat imgDisparity16S = Mat( imgLeft.rows, imgLeft.cols, CV_16S );
         Mat imgDisparity8U = Mat( imgLeft.rows, imgLeft.cols, CV_8UC1 );

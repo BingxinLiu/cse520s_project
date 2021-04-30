@@ -53,10 +53,13 @@ message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
 # Declare the executable target built from your sources
 
 add_executable(photo photo.cpp)
-
-
+#add_executable(detector detector.cpp)
+#add_executable(camera camera.cpp)
+#add_executable(rec_photo rec_photo.cpp)
 
 # Link your application with OpenCV libraries
 
 target_link_libraries(photo LINK_PRIVATE ${OpenCV_LIBS})
-
+#target_link_libraries(camera LINK_PRIVATE ${OpenCV_LIBS})
+#target_link_libraries(detector LINK_PRIVATE ${OpenCV_LIBS})
+#target_link_libraries(rec_photo LINK_PRIVATE ${OpenCV_LIBS})
